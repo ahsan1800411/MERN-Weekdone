@@ -16,11 +16,13 @@ exports.registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({ name, email, password });
+  const token = user.createJWT();
   if (user) {
     res.status(201).json({
       _id: user.id,
       name: user.name,
       email: user.email,
+      token,
     });
   } else {
     res.status(400);
@@ -33,12 +35,14 @@ exports.loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
+  const token = user.createJWT();
 
   if (user && (await bcrypt.compare(password, user.password))) {
     res.status(201).json({
       _id: user.id,
       name: user.name,
       email: user.email,
+      token,
     });
   } else {
     res.status(400);
@@ -47,4 +51,7 @@ exports.loginUser = asyncHandler(async (req, res) => {
 });
 
 // get a user >>> Get Request
-exports.getMe = asyncHandler(async (req, res) => {});
+exports.getMe = asyncHandler(async (req, res) => {
+  const { _id, name, email } = await User.findById(req.user.id);
+  res.status(200).json({ id: _id, name, email });
+});
