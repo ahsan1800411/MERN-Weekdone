@@ -22,16 +22,25 @@ export const register = createAsyncThunk(
       }
       return data;
     } catch (error) {
-      const message =
-        error.response &&
-        error.response.data &&
-        error.response.data.message &&
-        error.message &&
-        error.toString;
-      return ThunkApi.rejectWithValue(message);
+      return ThunkApi.rejectWithValue(error.response.data.message);
     }
   }
 );
+export const login = createAsyncThunk('auth/login', async (user, ThunkApi) => {
+  try {
+    const { data } = await axios.post('/api/users/login', user);
+    if (data) {
+      localStorage.setItem('user', JSON.stringify(data));
+    }
+    return data;
+  } catch (error) {
+    return ThunkApi.rejectWithValue(error.response.data.message);
+  }
+});
+
+export const logout = createAsyncThunk('/auth/logout', () => {
+  localStorage.removeItem('user');
+});
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -57,6 +66,23 @@ export const authSlice = createSlice({
       state.isLoading = false;
       state.isError = true;
       state.message = action.payload;
+      state.user = null;
+    },
+    [login.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [login.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.user = action.payload;
+      state.isSuccess = true;
+    },
+    [login.rejected]: (state, action) => {
+      state.isLoading = false;
+      state.isError = true;
+      state.message = action.payload;
+      state.user = null;
+    },
+    [logout.fulfilled]: (state) => {
       state.user = null;
     },
   },
