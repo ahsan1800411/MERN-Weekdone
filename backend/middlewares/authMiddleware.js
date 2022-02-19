@@ -18,7 +18,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
       res.status(400);
       throw new Error('Not Authorized');
     }
-  }
+  } 
 
   if (!token) {
     res.status(400);

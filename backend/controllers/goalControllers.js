@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler');
 const Goal = require('../models/Goal');
-const User = require('../models/User');
 
 // Get all the Goal >> Get Request
 exports.getGoals = asyncHandler(async (req, res) => {
